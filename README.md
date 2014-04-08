@@ -12,10 +12,15 @@ Visit [crtrdg.github.io](http://crtrdg.github.io) for more info.
 
 For an example player module check out [crtrdg-player](http://github.com/sethvincent/crtrdg-player)
 
-Currently running the game like so:
+Run with node:
 
-     beefy game.js:bundle.js 8080 --live
+     node app.js
 
-Ah, then I realized you can save this in package.json in scripts:
+Best to run with grunt now, which watches for file changes:
 
-     npm start
+     grunt
+
+Then open:
+
+    http://localhost:3000
+

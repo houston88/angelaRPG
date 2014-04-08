@@ -2,6 +2,7 @@ var inherits = require('inherits');
 var Game = require('crtrdg-gameloop');
 var Entity = require('crtrdg-entity');
 var Keyboard = require('crtrdg-keyboard');
+var io = require('socket.io-browserify');
 
 inherits(Player, Entity);
 
@@ -71,7 +72,7 @@ var game = new Game({
     canvasId: 'game',
     width: window.innerWidth,
     height: window.innerHeight,
-    backgroundColor: '#E187B8'
+    backgroundColor: '#66CCFF'
 });
 
 var keyboard = new Keyboard(game);
@@ -97,6 +98,13 @@ player.on('update', function(interval){
     this.checkBoundaries();
 });
 
+// Lets test out socket.io
+var socket = io.connect('http://localhost:3000');
+socket.on('news', function(data) {
+    console.log(data);
+    socket.emit('my other event....', {my: 'data'});
+});
+
 // Lets load an image
 var playerImageObj0 = new Image();
 playerImageObj0.src = 'images/player/TestCharacter.png';
@@ -107,6 +115,8 @@ var animate = 50;
 player.on('draw', function(draw){
     draw.fillStyle = this.color;
     //draw.fillRect(this.position.x, this.position.y, this.size.x, this.size.y);
+
+    draw.fillText('The Player', this.position.x, this.position.y+60);
 
     // lets try an image? Cool! Lets animate it.
     if (animate >= 25) {
