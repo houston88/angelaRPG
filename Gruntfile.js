@@ -28,8 +28,8 @@ module.exports = function(grunt) {
 
         browserify: {
             client: {
-                src: ['game.js'],
-                dest: 'bundle.js'
+                src: ['js/game.js'],
+                dest: 'lib/bundle.js'
             }
         },
 
@@ -37,7 +37,7 @@ module.exports = function(grunt) {
             options: {
                 livereload: true
             },
-            files: ['game.js'],
+            files: ['js/*.js'],
             tasks: ['browserify']
         }
 
@@ -57,6 +57,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-concurrent');
 
     // Default task(s).
-    grunt.registerTask('default', ['concurrent:dev']);
+    grunt.registerTask('default', ['browserify', 'concurrent:dev']);
 
 };

@@ -1,12 +1,13 @@
-var inherits = require('inherits');
-var Game = require('crtrdg-gameloop');
+/**
+ * Created by hharris3 on 4/8/14.
+ */
 var Entity = require('crtrdg-entity');
-var Keyboard = require('crtrdg-keyboard');
-var io = require('socket.io-browserify');
+var inherits = require('inherits');
 
+module.exports = Player;
 inherits(Player, Entity);
 
-function Player(options){
+function Player(options) {
     this.position = {
         x: options.position.x,
         y: options.position.y
@@ -25,6 +26,16 @@ function Player(options){
     this.speed = options.speed;
     this.friction = options.friction;
     this.color = options.color;
+
+    // Lets load an image
+    this.playerImageObj0 = new Image();
+    this.playerImageObj0.src = 'images/player/TestCharacter.png';
+    this.playerImageObj1 = new Image();
+    this.playerImageObj1.src = 'images/player/TestCharacter1.png';
+
+    // How often to we animate? Need a better way to do this!
+    this.animate = 50;
+
 }
 
 Player.prototype.move = function(velocity){
@@ -50,7 +61,7 @@ Player.prototype.checkBoundaries = function(){
     }
 };
 
-Player.prototype.keyboardInput = function(){
+Player.prototype.keyboardInput = function(keyboard){
     if ('A' in keyboard.keysDown){
         this.velocity.x = -this.speed;
     }
@@ -68,65 +79,36 @@ Player.prototype.keyboardInput = function(){
     }
 };
 
-var game = new Game({
-    canvasId: 'game',
-    width: window.innerWidth,
-    height: window.innerHeight,
-    backgroundColor: '#66CCFF'
-});
-
-var keyboard = new Keyboard(game);
-
-var player = new Player({
-    position: { x: 10, y: 10 },
-    size: { x: 40, y: 50 },
-    velocity: { x: 0, y: 0 },
-    speed: 3,
-    friction: 0.9,
-    color: '#fff'
-});
-
-player.addTo(game);
-
-player.on('update', function(interval){
+Player.prototype.update = function(interval, keyboard) {
     this.keyboardInput(keyboard);
-
     this.move(this.velocity);
     this.velocity.x *= this.friction;
     this.velocity.y *= this.friction;
-
     this.checkBoundaries();
-});
+}
 
-// Lets test out socket.io
-var socket = io.connect('http://localhost:3000');
-socket.on('news', function(data) {
-    console.log(data);
-    socket.emit('my other event....', {my: 'data'});
-});
-
-// Lets load an image
-var playerImageObj0 = new Image();
-playerImageObj0.src = 'images/player/TestCharacter.png';
-var playerImageObj1 = new Image();
-playerImageObj1.src = 'images/player/TestCharacter1.png';
-var animate = 50;
-
-player.on('draw', function(draw){
+Player.prototype.draw = function(draw, keyboard) {
     draw.fillStyle = this.color;
     //draw.fillRect(this.position.x, this.position.y, this.size.x, this.size.y);
-
-    draw.fillText('The Player', this.position.x, this.position.y+60);
-
-    // lets try an image? Cool! Lets animate it.
-    if (animate >= 25) {
-        draw.drawImage(playerImageObj0, this.position.x, this.position.y, this.size.x, this.size.y);
-        animate = animate - 1;
-    } else if (animate > 0 && animate <= 25) {
-        draw.drawImage(playerImageObj1, this.position.x, this.position.y, this.size.x, this.size.y);
-        animate = animate - 1;
-    } else if (animate === 0) {
-        draw.drawImage(playerImageObj1, this.position.x, this.position.y, this.size.x, this.size.y);
-        animate = 50;
+    if (Object.keys(keyboard.keysDown).length > 0)  {
+        this.walk(draw);
+    } else {
+        draw.drawImage(this.playerImageObj0, this.position.x, this.position.y, this.size.x, this.size.y);
     }
-});
+    draw.fillText('The Player', this.position.x, this.position.y+60);
+}
+
+// TODO: Get animation working again
+Player.prototype.walk = function(draw) {
+    if (this.animate >= 25) {
+        draw.drawImage(this.playerImageObj0, this.position.x, this.position.y, this.size.x, this.size.y);
+        this.animate--;
+    } else if (this.animate > 0 && this.animate <= 25) {
+        draw.drawImage(this.playerImageObj1, this.position.x, this.position.y, this.size.x, this.size.y);
+        this.animate--;
+    } else if (this.animate === 0) {
+        draw.drawImage(this.playerImageObj1, this.position.x, this.position.y, this.size.x, this.size.y);
+        this.animate = 50;
+    }
+
+}
